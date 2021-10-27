@@ -7,6 +7,24 @@ const models = require("../models/index")
 const transaksi = models.transaksi
 const detail_transaksi = models.detail_transaksi
 
+// endpoint get transaksi
+app.get("/", async (request, response) => {
+    let dataTransaksi = await transaksi.findAll({
+        include: [
+            { model: models.member, as: "member"},
+            { model: models.users, as: "user"},
+            { 
+                model: models.detail_transaksi,
+                as: "detail_transaksi",
+                include: [
+                    {model: models.paket, as:"paket"}
+                ]
+            }
+        ]
+    })
+    return response.json(dataTransaksi)
+})
+
 // endpoint new transaksi
 app.post("/", (request,response) => {
     let newTransaksi = {
@@ -38,6 +56,46 @@ app.post("/", (request,response) => {
         .then(result => {
             return response.json({
                 message: `Data transaksi berhasil ditambahkan`
+            })
+        })
+        .catch(error => {
+            return response.json({
+                message: error.message
+            })
+        })
+    })
+    .catch(error => {
+        return response.json({
+            message: error.message
+        })
+    })
+})
+
+app.put("/:id_transaksi", (request,response) => {
+    // tampung data utk update ke tbl transaksi
+    // tampung parameter id_transaksi
+    // setelah berhasil update ke table transaksi,
+    // data detail transaksi yg lama dihapus semua berdasarkan
+    // id_transaksinya
+
+    // setelah dihapus, dimasukkan lagi menggunakan bulkCreate
+
+})
+
+app.delete("/:id_transaksi", (request, response) => {
+    // tampung parameter id_transaksi
+    let parameter = {
+        id_transaksi: request.params.id_transaksi
+    }
+
+    // delete detail transaksi
+    detail_transaksi.destroy({where: parameter})
+    .then(result => {
+        // hapus data transaksi nya
+        transaksi.destroy({where: parameter})
+        .then(hasil => {
+            return response.json({
+                message: `Data berhasil dihapus`
             })
         })
         .catch(error => {
