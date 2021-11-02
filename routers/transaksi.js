@@ -71,14 +71,55 @@ app.post("/", (request,response) => {
     })
 })
 
-app.put("/:id_transaksi", (request,response) => {
+app.put("/:id_transaksi", async (request,response) => {
     // tampung data utk update ke tbl transaksi
+    let dataTransaksi = {
+        id_member: request.body.id_member,
+        tgl: request.body.tgl,
+        batas_waktu: request.body.batas_waktu,
+        tgl_bayar: request.body.tgl_bayar,
+        status: request.body.status,
+        dibayar: request.body.dibayar,
+        id_user: request.body.id_user
+    }
     // tampung parameter id_transaksi
-    // setelah berhasil update ke table transaksi,
-    // data detail transaksi yg lama dihapus semua berdasarkan
-    // id_transaksinya
+    let parameter = {
+        id_transaksi: request.params.id_transaksi
+    }
 
-    // setelah dihapus, dimasukkan lagi menggunakan bulkCreate
+    transaksi.update(dataTransaksi, {where: parameter})
+    .then(async (result) => {
+        // hapus data detail transaksi yg lama
+        await detail_transaksi.destroy({where: parameter})
+        
+        // masukkan data detail yang baru
+        let detail = request.body.detail_transaksi
+        for (let i = 0; i < detail.length; i++) {
+            // sebelumnya
+            // nilai detail[i] hanya punya key id_paket
+            // dan qty saja
+            detail[i].id_transaksi = request.params.id_transaksi
+        }
+
+        // proses insert detail_transaksi
+        detail_transaksi.bulkCreate(detail)
+        .then(result => {
+            return response.json({
+                message: `Data transaksi berhasil diubah`
+            })
+        })
+        .catch(error => {
+            return response.json({
+                message: error.message
+            })
+        })
+    })
+    .catch(error => {
+        return response.json({
+            message: error.message
+        })
+    })
+   
 
 })
 
