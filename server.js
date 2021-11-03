@@ -6,7 +6,7 @@ const member = require("./routers/member")
 const users = require("./routers/users")
 const paket = require("./routers/paket")
 const transaksi = require("./routers/transaksi")
-const login = require ("./routers/login")
+const { login } = require ("./routers/login")
 
 app.use("/api/member", member)
 app.use("/api/users", users)

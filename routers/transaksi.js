@@ -1,3 +1,4 @@
+const { response } = require("express")
 const express = require("express")
 const app = express()
 app.use(express.json())
@@ -143,6 +144,58 @@ app.delete("/:id_transaksi", (request, response) => {
             return response.json({
                 message: error.message
             })
+        })
+    })
+    .catch(error => {
+        return response.json({
+            message: error.message
+        })
+    })
+})
+
+// endpoint untuk mengubah status transaksi
+app.post("/status/:id_transaksi", (request, response) => {
+    // kita tampung nilai status
+    let data = {
+        status: request.body.status
+    }
+
+    // kita tampung parameter
+    let parameter = {
+        id_transaksi: request.params.id_transaksi
+    }
+
+    // proses update status transaksi
+    transaksi.update(data, {where: parameter})
+    .then(result => {
+        return response.json({
+            message: `Data status berhasil diubah`
+        })
+    })
+    .catch(error => {
+        return response.json({
+            message: error.message
+        })
+    })
+})
+
+// endpoint untuk mengubah status pembayaran
+app.get("/bayar/:id_transaksi", (request, response) => {
+    let parameter = {
+        id_transaksi: request.params.id_transaksi
+    }
+
+    let data = {
+        // mendapatkan tanggal yg saat ini berjalan
+        tgl_bayar: new Date().toISOString().split("T")[0],
+        dibayar: true
+    }
+
+    // proses ubah transaksi
+    transaksi.update(data, {where: parameter})
+    .then(result => {
+        return response.json({
+            message: `Transaksi berhasil diubah`
         })
     })
     .catch(error => {
